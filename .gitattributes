@@ -1,0 +1,6 @@
+data/processed_items/item_1.csv filter=lfs diff=lfs merge=lfs -text
+data/processed_items/item_2.csv filter=lfs diff=lfs merge=lfs -text
+data/processed_items/item_3.csv filter=lfs diff=lfs merge=lfs -text
+data/processed_items/item_4.csv filter=lfs diff=lfs merge=lfs -text
+data/processed_items/item_5 filter=lfs diff=lfs merge=lfs -text
+data/processed_items/item_5.csv filter=lfs diff=lfs merge=lfs -text
