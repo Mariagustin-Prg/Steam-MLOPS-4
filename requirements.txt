@@ -6,5 +6,5 @@ matplotlib
 seaborn
 ipykernel
 uvicorn
-pyarrow
-fastparquet
+nltk
+textblob
