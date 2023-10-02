@@ -7,6 +7,14 @@ df_PlayTimeGenre = pd.read_csv("./data/data_to_functions/PlayTimeGenre.csv")
 
 @app.get("/functions/PlayTime/{genero}")
 def tiempo_por_juego(genero:str):
+    '''
+    The function wait a parameter like a: Action, Casual, Indie, Simulation, Strategy, 
+    Free to Play, RPG, Sports, Adventure, Racing, Early Access, Massively Multiplayer, Animation &amp; Modeling, Video Production, Utilities, Web Publishing, Education, Software Training, Design &amp; Illustration, Audio Production, Photo Editing or Accounting.
+    
+    This function takes the requested genre as a parameter and returns 
+    a dictionary with the year with the most played hours and the quantity of hours.
+    '''
+    
     row = df_PlayTimeGenre[df_PlayTimeGenre['genero']==genero].T
     list_genres = list(df_PlayTimeGenre['genero'].values)
 
@@ -16,19 +24,32 @@ def tiempo_por_juego(genero:str):
             if item.values[0] > max_anio:
                 max_anio = año
                 max_playtime = item.values[0]
+            return {
+                f"Año de lanzamiento con más horas para género {genero}": max_anio,
+                f"Cantidad de horas jugadas": max_playtime
+            }
         except TypeError:
-            return {NameError: f"The function wait a name of genre in the dataframe. Also: {', '.join(list_genres)}."}
+            pass
         except IndexError:
-            return {NameError: f"The function wait a name of genre in the dataframe. Also: {', '.join(list_genres)}."}
-    return {
-        f"Año de lanzamiento con más horas para género {genero}": max_anio,
-        f"Cantidad de horas jugadas en {max_anio}": max_playtime
-    }
+            return {"IndexError": None}
+        
+
 
 df_UserForGenre = pd.read_json("./data/data_to_functions/UserForGenre.json")
 
 @app.get("/functions/UserForGenre/{genero}")
 def usuarios_por_genero(genero:str):
+    '''
+    The function wait a parameter like a: Action, Casual, Indie, Simulation, Strategy, 
+    Free to Play, RPG, Sports, Adventure, Racing, Early Access, 
+    Massively Multiplayer, Animation &amp; Modeling, Video Production, Utilities, 
+    Web Publishing, Education, Software Training, Design &amp; Illustration, 
+    Audio Production, Photo Editing or Accounting.
+
+    This function takes the genre as an input parameter and returns the user 
+    with the most hours invested in games of that genre, as well as the 
+    distribution of game hours by year.
+    '''
     try:
         row = df_UserForGenre[['user', f'{genero}']]
 
@@ -39,13 +60,20 @@ def usuarios_por_genero(genero:str):
             "Horas jugadas": row[f'{genero}'].iloc[0]
         }
     except (IndexError, KeyError):
-        return {NameError: 'The function wait a name of genre in the dataframe. Also: Action, Casual, Indie, Simulation, Strategy, Free to Play, RPG, Sports, Adventure, Racing, Early Access, Massively Multiplayer, Animation &amp; Modeling, Video Production, Utilities, Web Publishing, Education, Software Training, Design &amp; Illustration, Audio Production, Photo Editing.'}
+        return {"NameError": 'The function wait a name of genre in the dataframe. Also: Action, Casual, Indie, Simulation, Strategy, Free to Play, RPG, Sports, Adventure, Racing, Early Access, Massively Multiplayer, Animation &amp; Modeling, Video Production, Utilities, Web Publishing, Education, Software Training, Design &amp; Illustration, Audio Production, Photo Editing.'}
 
 
 df_UserRecommend = pd.read_json("./data/data_to_functions/UserRecommend.json")
 
 @app.get("/functions/UserRecommend/{year}")
 def recomendaciones_de_usuarios(year:int):
+    '''
+    The function expects an input parameter 'year' 
+    containing the year for which you want to retrieve information.
+
+    The function takes a specific year and returns the games most 
+    recommended by users for the queried year.
+    '''
     if not isinstance(year, int):
         raise TypeError("The function wait a integer.")
 
@@ -60,13 +88,20 @@ def recomendaciones_de_usuarios(year:int):
     except TypeError:
         return None
     except KeyError:
-        return {"Error": f"The function doesn't find {year}'s recommendations."}
+        return {"Error": f"The function did not find recommendations for {year}."}
 
 
 df_UserNotRecommend = pd.read_json("./data/data_to_functions/UserNotRecommend.json")
 
 @app.get("/functions/UserNotRecommend/{year}")
 def no_recomendadas_por_usuarios(year:int):
+    '''
+    The function expects an input parameter 'year' 
+    containing the year for which you want to retrieve information.
+
+    The function takes a specific year as an input parameter and 
+    returns the games with the highest number of negative reviews.
+    '''
     if not isinstance(year, int):
         raise TypeError("The function wait a integer.")
 
@@ -82,7 +117,7 @@ def no_recomendadas_por_usuarios(year:int):
 
         return not_recommend
     except KeyError:
-        return {"Error": f"The function doesn't find {year}'s recommendations."}
+        return {"Error": f"The function did not find recommendations for {year}."}
 
 
 
@@ -90,24 +125,33 @@ df_sentiment_analyisis = pd.read_csv("./data/data_to_functions/sentiment_analysi
 
 @app.get("/functions/sentiment_analysis/{year}")
 def analisis_de_sentimiento(year:int):
+    '''
+    The function expects an input parameter 'year' 
+    containing the year for which you want to retrieve information.
+
+    The function receives the requested year and returns a list of user sentiments in 
+    the reviews published that year on the scale of 'Positive,' 'Neutral,' and 'Negative'.
+    '''
     if not isinstance(year, int):
         raise TypeError("The function wait a integer.")            
 
     try:
+        year = str(year)
         sentiments = list(df_sentiment_analyisis['Sentiment'].values)
         values = list(df_sentiment_analyisis[f"{year}"].values)
 
-        zip_sentiments = zip(sentiments, values)
-
-        dicc_sentiments = {}
-
-        for sentiment, val in zip_sentiments:
-            dicc_sentiments[f"{sentiment}"] = val
-
-        return dicc_sentiments
+        return {
+            f"{sentiments[0]}": int(values[0]),
+            f"{sentiments[1]}": int(values[1]),
+            f"{sentiments[2]}": int(values[2])
+        }
 
     except KeyError:
-        return {"Error": f"The function doesn't find {year}'s recommendations."}
+        return {"Error": f"The function did not find recommendations for {year}."}
+    except ValueError:
+        return None
+
+
 
 @app.get("/")
 def inicio():
